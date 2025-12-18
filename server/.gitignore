@@ -1,0 +1,34 @@
+# Dépendances Node.js (Trop lourd)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Variables d'environnement (Mots de passe, Secrets)
+.env
+.env.test
+.env.production
+
+# Certificats HTTPS (Jamais sur Git !)
+server.key
+server.cert
+*.pem
+*.crt
+
+# Fichiers Système
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE (VS Code, JetBrains...)
+.vscode/
+.idea/
+
+# SonarQube
+.scannerwork/
