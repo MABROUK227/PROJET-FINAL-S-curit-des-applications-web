@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import helmet from 'helmet';
 import fs from 'fs';
 import https from 'https';
-import rateLimit from 'express-rate-limit'; // Nouveau
+import rateLimit from 'express-rate-limit';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -16,19 +16,39 @@ dotenv.config();
 
 const app = express();
 
-// Configuration de sécurité (Helmet + Rate Limit)
+// --- SÉCURITÉ (Helmet + HSTS + CSP) ---
 app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'", "https://localhost:5000", "https://localhost:3000"],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
+app.use(helmet.hsts({ maxAge: 31536000, includeSubDomains: true, preload: true }));
 
-// Limiteur : Max 100 requêtes par 15 min par IP
+// --- CORS ---
+const corsOptions = {
+  origin: 'https://localhost:3000',
+  optionsSuccessStatus: 200,
+  credentials: true
+};
+app.use(cors(corsOptions));
+
+// --- RATE LIMITING ---
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
   max: 100, 
-  message: 'Trop de requêtes depuis cette IP, veuillez réessayer plus tard.'
+  message: 'Trop de requêtes, veuillez réessayer plus tard.'
 });
 app.use(limiter);
 
-// Middleware
-app.use(cors());
 app.use(express.json());
 
 // Connexion MongoDB
@@ -36,7 +56,12 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connecté'))
   .catch(err => console.log('❌ Erreur MongoDB:', err));
 
-// Routes
+// --- 🆕 LA ROUTE QUI MANQUAIT POUR ZAP ---
+app.get('/', (req, res) => {
+  res.send('🛡️ API SafeNote Sécurisée est en ligne !');
+});
+
+// Routes API
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/admin', adminRoutes);

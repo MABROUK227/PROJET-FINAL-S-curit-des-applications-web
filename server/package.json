@@ -1,7 +1,6 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -29,5 +28,6 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.11"
-  }
+  },
+  "description": ""
 }
